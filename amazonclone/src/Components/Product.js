@@ -2,7 +2,7 @@ import React from "react";
 import "./Product.css";
 import StarIcon from "@material-ui/icons/Star";
 
-function Product() {
+function Product({title, image, price, rating}) {
   return (
     <div className="product">
       <div className="product__info">
