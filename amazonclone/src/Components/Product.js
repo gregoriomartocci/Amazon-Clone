@@ -2,29 +2,27 @@ import React from "react";
 import "./Product.css";
 import StarIcon from "@material-ui/icons/Star";
 
-function Product({title, image, price, rating}) {
+function Product({ id, title, image, price, rating }) {
   return (
     <div className="product">
       <div className="product__info">
-        <p>The Lean Startup</p>
+        <p>{title}</p>
         <p className="product__price">
           <small>$</small>
-          <strong>19.99</strong>
+          <strong>{price}</strong>
         </p>
         <div className="product__rating">
-          <p>
-            <StarIcon />
-          </p>
-          <p>
-            <StarIcon />
-          </p>
-          <p>
-            <StarIcon />
-          </p>
+          {Array(rating)
+            .fill()
+            .map((_, i) => (
+              <p>
+                <StarIcon />
+              </p>
+            ))}
         </div>
       </div>
 
-      <img src="/products/joystick__switch.jpg" alt=""></img>
+      <img src={image} alt=""></img>
 
       <button>Add to Basket</button>
     </div>
