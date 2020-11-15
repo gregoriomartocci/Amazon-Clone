@@ -2,12 +2,18 @@ import React, { useEffect } from "react";
 import "./App.css";
 import Header from "./Components/Header";
 import Home from "./Components/Home";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Checkout from "./Components/Checkout";
 import Login from "./Components/Login";
 import { auth } from "./firebase";
 import { useStateValue } from "./StateProvider";
-import Payment from "./Components/Payment"
+import Payment from "./Components/Payment";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+const promise = loadStripe(
+  "pk_test_51HnOJJJKek0AOG2nRfwqvz4ydrtJEZCyf2CJsXapQN13Vz2tlVSikGaY1QEc2GiSQ9EwwF1OHO4fbIzV2KtNCMNh00jIeAbXyn"
+);
 
 function App() {
   const [{}, dispatch] = useStateValue();
@@ -23,8 +29,8 @@ function App() {
       } else {
         dispatch({
           type: "SET_USER",
-          user:null,
-        })
+          user: null,
+        });
       }
     });
   }, []);
@@ -42,8 +48,9 @@ function App() {
           </Route>
           <Route path="/payment">
             <Header />
-            <Payment />
-            <h1>I'm the payment route</h1>
+            <Elements stripe={promise}>
+              <Payment />
+            </Elements>
           </Route>
           <Route path="/">
             <Header />
