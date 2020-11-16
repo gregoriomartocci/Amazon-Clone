@@ -1,8 +1,7 @@
 const functions = require("firebase-functions");
 const express = require("express");
 const cors = require("cors");
-
-(
+const stripe = require("stripe")(
   "sk_test_51HnOJJJKek0AOG2nePIVYNa1X6Ut5Vy4VjbZFaG9gPNjJU623ca6XSChZdAUfnmXRcH3IvwSpoPROqxasqMH2QIi00EC38x5xg"
 );
 
@@ -13,6 +12,21 @@ app.use(express.json());
 
 app.get("/", (request, response) => response.status(200).send("hello world"));
 
-app.get("/grego", (request, response) => response.status(200).send("Que pasa greguito"));
+app.post("/payments/create", async (request, response) => {
+  const total = request.query.total;
 
-exports.apo = functions.https.onRequest(app);
+  console.log("Payment Request Recieved Boom!! ", total);
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: total,
+    currency: "usd",
+  });
+
+  response.status(201).send({
+    clientSecret: paymentIntent.client_secret,
+  });
+});
+
+exports.api = functions.https.onRequest(app);
+
+//http://localhost:5001/clone-d49b3/us-central1/api
