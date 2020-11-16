@@ -14,6 +14,11 @@ const reducer = (state, action) => {
         ...state,
         basket: [...state.basket, action.item],
       };
+    case "EMPTY_BASKET":
+      return {
+        ...state,
+        basket: [],
+      };
     case "REMOVE_FROM_BASKET":
       // Does any of the basket items match the action id i passed in?
       const index = state.basket.findIndex(
@@ -34,11 +39,11 @@ const reducer = (state, action) => {
         basket: newBasket,
       };
 
-      case"SET_USER":
-      return{
+    case "SET_USER":
+      return {
         ...state,
-        user: action.user
-      }
+        user: action.user,
+      };
 
     default:
       return state;

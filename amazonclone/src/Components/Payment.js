@@ -1,16 +1,17 @@
-import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import React, { useState, useEffect } from "react";
-import CurrencyFormat from "react-currency-format";
-import { Link, useHistory } from "react-router-dom";
+import "./Payment.css";
 import { useStateValue } from "../StateProvider";
 import CheckoutProduct from "./CheckoutProduct";
-import { getBasketTotal } from "../reducer"
-import "./Payment.css";
-import axios from "../axios"
+import { Link, useHistory } from "react-router-dom";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import CurrencyFormat from "react-currency-format";
+import { getBasketTotal } from "../reducer";
+import axios from "../axios";
+import { db } from "../firebase";
 
 function Payment() {
   const [{ basket, user }, dispatch] = useStateValue();
-  const history = useHistory()
+  const history = useHistory();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -33,23 +34,43 @@ function Payment() {
     getClientSecret();
   }, [basket]);
 
+  console.log(`THE SECRET IS >>>>`, clientSecret);
+  console.log(user);
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setProcessing(true);
 
-    const payload = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-      },
-    }).then(({response}) =>{
+    const payload = await stripe
+      .confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      })
+      .then(({ paymentIntent }) => {
+        
+        console.log(paymentIntent)
+        db.collection("users")
+          .doc(user?.uid)
+          .collection("orders")
+          .doc(paymentIntent.id)
+          .set({
+            basket: basket,
+            amount: paymentIntent.amount,
+            created: paymentIntent.created,
+          });
 
-        setSucceded(true)
-        setError(null)
-        setProcessing(false)
+        setSucceded(true);
+        setError(null);
+        setProcessing(false);
 
-        history.replace("/orders")
+        dispatch({
+          type: "EMPTY_BASKET",
+        });
 
-    })
+        history.replace("/orders");
+      });
   };
 
   const handleChange = (event) => {
